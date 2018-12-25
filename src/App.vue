@@ -1,103 +1,86 @@
 <template>
-  <div id="app">
-    <!-- <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/> -->
+  <!-- <div v-if="showName">{{name}}</div> -->
+  <div>
+    <!-- {{name}}
     
-    <div>
-        {{name}}购物车
-    </div>
-
+    -->
+    <!-- 
+<input type="text" v-model="text">
+    <button @click="addGood">添加</button>-->
     <ul>
-      <li v-for='(good, index) in goods' :key="good.text">
-        {{good.text}}
-        <button @click="addCart(index)">添加到购物车</button>
-        </li>
+      <li v-for="(good,index) in goods" :key="good.text">
+        {{good.text}} ￥{{good.price}}
+        <button @click="addCart(index)">添加购物车</button>
+      </li>
     </ul>
 
-    <!-- <input type="text" v-model="text">
-    <button @click="addGood">添加课程</button> -->
-    
-
-    <Cart :name="name" :cart="cart"/>
+    <hr>
+    <Cart :name="name" ></Cart>
   </div>
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
-import Cart from './components/Cart.vue'
-
+import Cart from "./components/Cart";
+import axios from "axios";
 export default {
-  name: 'app',
+  name: "app",
   components: {
-    // HelloWorld,
     Cart
   },
-  // props:['name',"cart"],
-  // props:{
-  //   text:String
-  // },
-  // props:{
-  //   fatherName :{
-  //     type: String 
-  //   },
-  //   goods:[{text:'百万年薪架构师'}]
-  // },
-  data(){
+  data() {
     return {
-      text:'',
-      name:'开课吧',
-            goods:[
-                {text:'百万年薪架构师',price:100,count:0},
-                {text:'web全栈架构师',price:80,count:0},
-                {text:'Python爬虫',price:60,count:0},
-                {text:'Java架构师',price:70,count:0},
-            ]
-    }
+      name: "开课吧",
+      showName: true,
+      text: "",
+      //购物车
+      // cart: [],
+      goods: []
+    };
   },
-  created(){
-    // this.fatherName = '开课吧';
-  },
-  mounted(){
-    // this.fatherName = '开课吧';
-  },
-  methods:{
-        addCart(i){
-            const good = this.goods[i];
-            console.log(typeof this.cart);
-            const ret = this.cart.find(c=>c.text == good.text);
+  async created() {
+    // 组件创建后会自动执行once
+    // setTimeout(() => {
+    //   this.showName = false;
+    // }, 2000);
+    try {
+      const ret = await axios.get("/api/goods");
+      this.goods = ret.data.list;
+    } catch (err) {}
 
-            if(ret){
-                ret.count += 1;
-            }else{            
-                cart.push({
-                    ...good,
-                    active:true,
-                    count:1
-                })
-            }
-
-        // console.log(cart);
-        // this.$bus.$emit('addCart',good);
-        },
-    addGood(){
-      if(this.text){
-        this.goods.push({
-          text:this.text
-        });
-        this.text = '';
+    // axios.get("/api/goods").then(res => {
+    //   this.goods = res.data.list;
+    // }).catch(err=>{
+    //   alert(err)
+    // });
+  },
+  methods: {
+    addGood() {
+      if (this.text) {
+        this.goods.push({ text: this.text });
       }
+    },
+    addCart(i) {
+      // const good = this.goods[i]; //this.cart.find(v=>v.text ==)
+      // const ret = this.cart.find(v => v.text == good.text);
+
+      // if (ret) {
+      //   ret.count += 1;
+      // } else {
+      //   this.cart.push({
+      //     ...good,
+      //     active: true,
+      //     count: 1
+      //   });
+      // }
+      const good = this.goods[i];
+      // 触发一个事件
+      this.$bus.$emit("addCart", good);
     }
   }
-}
+};
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* text-align: center; */
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>
+
+
